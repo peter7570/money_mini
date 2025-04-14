@@ -1,0 +1,15 @@
+body {
+    background: #ffffff;
+    color: #0e0e0e;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    padding: 20px;
+}
+
+.block-message {
+    max-width: 500px;
+    margin: auto;
+    padding: 20px;
+    border: 2px solid red;
+    background: rgba(255, 0, 0, 0.2);
+}

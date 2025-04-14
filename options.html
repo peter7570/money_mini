@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Minimal Blocker - Settings</title>
+
+    <link rel="stylesheet" href="blocked.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 360px;
+            margin: 20px auto;
+            background-color: #f4f4f4;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+        }
+
+        h2, h3 {
+            text-align: center;
+            color: #333;
+        }
+
+        input, button {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #0078d4;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #005a9e;
+        }
+
+        .settings-section {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .date-time-container {
+            display: flex;
+            gap: 8px;
+        }
+
+        .date-time-container input {
+            flex: 1;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: white;
+            margin: 6px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .remove-btn {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 6px 10px;
+            margin-top: 5px;
+            font-size: 12px;
+            align-self: flex-start;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #licenseContainer {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        #licenseStatus {
+            text-align: center;
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 🔐 Лицензия -->
+<div id="licenseContainer">
+    <h2>License Activation</h2>
+    <input type="text" id="licenseKey" placeholder="Enter license key" />
+    <button id="saveLicense">Activate License</button>
+    <p id="licenseStatus"></p>
+</div>
+
+<!-- ⚙️ Основной контент -->
+<div id="content" class="hidden">
+    <div class="settings-section">
+        <h3>Website Blacklist</h3>
+        <input type="text" id="resource" placeholder="example.com" required />
+
+        <label>Start Date & Time:</label>
+        <div class="date-time-container">
+            <input type="date" id="blockStartDate" />
+            <input type="time" id="blockStartTime" />
+        </div>
+
+        <label>End Date & Time:</label>
+        <div class="date-time-container">
+            <input type="date" id="blockEndDate" />
+            <input type="time" id="blockEndTime" />
+        </div>
+
+        <button id="addToBlacklist">Add to Blacklist</button>
+    </div>
+
+    <h3 id="blacklistTitle" class="hidden">Current Blacklist</h3>
+    <ul id="blacklist"></ul>
+</div>
+
+<script src="options.js"></script>
+</body>
+</html>

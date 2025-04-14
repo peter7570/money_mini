@@ -1,0 +1,37 @@
+{
+  "name": "Minimal Blocker",
+  "description": "Block websites by date range and license key validation.",
+  "version": "1.0",
+  "manifest_version": 3,
+  "permissions": [
+    "storage",
+    "declarativeNetRequest",
+    "tabs"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "options.html",
+    "default_icon": {
+      "16": "icons/icons8-16.png",
+      "48": "icons/icons8-48.png",
+      "128": "icons/icons8-128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icons8-16.png",
+    "48": "icons/icons8-48.png",
+    "128": "icons/icons8-128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["blocked.html", "blocked.css"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "homepage_url": "http://astisoft.net"
+}
