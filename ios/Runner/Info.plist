@@ -45,5 +45,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Разрешения -->
+	<key>NSCameraUsageDescription</key>
+	<string>Приложению необходимо разрешение для использования камеры</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Приложению необходимо разрешение для доступа к галерее</string>
 </dict>
 </plist>
