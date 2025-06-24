@@ -5,8 +5,9 @@ workflows:
     environment:
       flutter: stable
       xcode: latest
-      groups:
-        - ios_credentials
+      vars:
+        APP_ID: "moneynest"
+        TEAM_ID: "7GX9J7V725"
     scripts:
       - name: Install dependencies
         script: |
