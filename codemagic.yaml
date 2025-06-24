@@ -1,17 +1,20 @@
 workflows:
-  flutter-app:
-    name: Build Flutter app for Android and iOS
-    max_build_duration: 20
+  build-ios-app:
+    name: Build iOS IPA for MoneyNest
+    max_build_duration: 30
     environment:
       flutter: stable
       xcode: latest
+      vars:
+        APP_ID: "moneynest"
+        TEAM_ID: "7GX9J7V725"
     scripts:
       - name: Install dependencies
-        script: flutter pub get
-      - name: Build APK
-        script: flutter build apk --release
-      - name: Build IPA
-        script: flutter build ios --release --no-codesign
+        script: |
+          flutter pub get
+      - name: Build iOS .ipa (unsigned)
+        script: |
+          flutter build ios --release --no-codesign
     artifacts:
-      - build/app/outputs/flutter-apk/app-release.apk
       - build/ios/iphoneos/Runner.app
+      - build/ios/ipa/*.ipa
