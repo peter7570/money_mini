@@ -3,6 +3,9 @@ import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'widgets/bottom_navigation.dart';
+import '../services/transaction_service.dart';
+import '../models/transaction.dart';
+import 'home_screen.dart';
 
 class AddTransactionScreen extends StatefulWidget {
   final Map<String, dynamic> category;
@@ -26,6 +29,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final List<String> _tags = [];
   bool showAllCategories = false;
   late bool _isIncome;
+  List<Transaction> _allTransactions = [];
 
   final List<Map<String, dynamic>> categories = [
     {'label': 'Health',    'iconPath': 'assets/icons/health.png',    'color': Color(0xFFFF8A80)},
@@ -46,6 +50,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   void initState() {
     super.initState();
     _isIncome = widget.isIncome;
+    _loadTransactions();
+  }
+
+  void _loadTransactions() async {
+    await Future.delayed(Duration.zero);
+    final List<Transaction> all = TransactionService().getAll();
+    setState(() {
+      _allTransactions = all;
+    });
   }
 
   void _selectDate() async {
@@ -100,6 +113,47 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     );
   }
 
+  void _saveTransaction() async {
+    final amount = _amountController.text.trim();
+    final comment = _commentController.text.trim();
+
+    if (amount.isEmpty || double.tryParse(amount.replaceAll(',', '.')) == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid amount'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final tx = Transaction(
+      title: comment.isNotEmpty ? comment : 'No title',
+      amount: double.parse(amount.replaceAll(',', '.')),
+      isIncome: _isIncome,
+      category: widget.category['label'] ?? 'Unknown',
+      date: selectedDate,
+      comment: comment,
+      imagePath: _selectedImage?.path,
+      tag: _tags.isNotEmpty ? _tags.first : null,
+    );
+
+    await TransactionService().add(tx);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('✅ Transaction saved successfully'),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeScreen()),
+          (route) => false,
+    );
+  }
+
   Widget _buildCategoryTile(String iconPath, String label, Color color) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -118,7 +172,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         ),
         const SizedBox(height: 6),
         SizedBox(
-          height: 28, // ограничим высоту
+          height: 28,
           child: Text(
             label,
             maxLines: 1,
@@ -131,24 +185,26 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     );
   }
 
-
-
-  void _saveTransaction() {
-    final amount = _amountController.text.trim();
-    final comment = _commentController.text.trim();
-    if (amount.isEmpty || double.tryParse(amount.replaceAll(',', '.')) == null) return;
-
-    final transaction = {
-      'amount': double.parse(amount.replaceAll(',', '.')),
-      'date': selectedDate,
-      'tags': _tags,
-      'comment': comment,
-      'photo': _selectedImage?.path,
-      'category': widget.category,
-      'type': _isIncome ? 'income' : 'expense',
-    };
-
-    Navigator.pushNamed(context, '/analytics', arguments: transaction);
+  Widget _buildTypeButton(String label, bool isActive) {
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() => _isIncome = (label == 'Income'));
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.grey[900],
+          side: BorderSide(color: isActive ? Colors.yellowAccent : Colors.transparent),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(label, style: const TextStyle(color: Colors.white)),
+            if (isActive) const Icon(Icons.check_circle, color: Colors.yellowAccent, size: 16),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -223,7 +279,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               shrinkWrap: true,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
-              childAspectRatio: 0.75, // было 0.8 — немного увеличили
+              childAspectRatio: 0.75,
               physics: const NeverScrollableScrollPhysics(),
               children: visibleCategories.map((cat) {
                 return _buildCategoryTile(
@@ -233,7 +289,6 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 );
               }).toList(),
             ),
-
             if (!showAllCategories)
               Padding(
                 padding: const EdgeInsets.only(top: 16),
@@ -308,33 +363,17 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               child: const Text('Добавить', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
             ),
-            const SizedBox(height: 12),
+          /*  const SizedBox(height: 12),
+            const Text('All Transactions1:', style: TextStyle(color: Colors.white)),
+            const SizedBox(height: 6),
+            ..._allTransactions.map((t) => Text(
+              '${t.amount.toStringAsFixed(2)} - ${t.isIncome ? "income" : "expense"} - ${DateFormat('yyyy-MM-dd').format(t.date)}',
+              style: const TextStyle(color: Colors.white70, fontSize: 12),
+            )),  */
           ],
         ),
       ),
       bottomNavigationBar: const BottomNavigation(activeLabel: 'Категорії'),
-    );
-  }
-
-  Widget _buildTypeButton(String label, bool isActive) {
-    return Expanded(
-      child: ElevatedButton(
-        onPressed: () {
-          setState(() => _isIncome = (label == 'Income'));
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.grey[900],
-          side: BorderSide(color: isActive ? Colors.yellowAccent : Colors.transparent),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(label, style: const TextStyle(color: Colors.white)),
-            if (isActive) const Icon(Icons.check_circle, color: Colors.yellowAccent, size: 16),
-          ],
-        ),
-      ),
     );
   }
 }

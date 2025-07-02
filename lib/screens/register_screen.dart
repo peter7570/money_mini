@@ -157,13 +157,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    final box = await Hive.openBox('authBox');
-    if (box.containsKey(email)) {
+    final authBox = await Hive.openBox('authBox');
+    final usersBox = await Hive.openBox('users');
+
+    if (usersBox.containsKey(email)) {
       _showError('Email вже зареєстрований');
       return;
     }
 
-    await box.put(email, password);
+    await usersBox.put(email, {
+      'name': name,
+      'email': email,
+      'created': DateTime.now().toIso8601String(),
+    });
+
+    await authBox.put(email, password);
+    await authBox.put('current_user', email);
+
     Navigator.pushNamed(context, '/home');
   }
 

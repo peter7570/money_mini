@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'models/transaction.dart';
 
 import 'screens/onboarding_screen.dart';
 import 'screens/register_screen.dart';
@@ -18,13 +19,21 @@ import 'screens/forgot_password_screen.dart';
 import 'screens/verify_code_screen.dart';
 import 'screens/reset_password_screen.dart';
 
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
-  await Hive.openBox('authBox'); // открыть заранее
+  //await Hive.deleteBoxFromDisk('transactions');
 
+  await Hive.openBox('authBox');
+  await Hive.openBox('users');
+  Hive.registerAdapter(TransactionAdapter());
+  await Hive.openBox<Transaction>('transactions');
   runApp(const MyApp());
 }
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -53,7 +62,6 @@ class MyApp extends StatelessWidget {
           final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
           return AnalyticsScreen(transaction: args);
         },
-
       },
     );
   }

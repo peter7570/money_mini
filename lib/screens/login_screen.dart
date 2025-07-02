@@ -37,8 +37,19 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    // Добавим эту часть 👇
+    final usersBox = await Hive.openBox('users');
+    usersBox.put('current_user', email);
+    if (!usersBox.containsKey(email)) {
+      usersBox.put(email, {
+        'email': email,
+        'created': DateTime.now().toIso8601String(),
+      });
+    }
+
     Navigator.pushReplacementNamed(context, '/home');
   }
+
 
   @override
   void dispose() {

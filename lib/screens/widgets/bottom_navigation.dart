@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../summary_screen.dart';
 import '../settings_screen.dart';
-
+import '../home_screen.dart';
 
 class BottomNavigation extends StatelessWidget {
   final String activeLabel;
@@ -21,21 +21,28 @@ class BottomNavigation extends StatelessWidget {
         children: [
           _buildNavItem(
             context,
-            icon: Icons.category,
+            iconPath: 'assets/icons/categories.png',
             label: 'Категорії',
             isActive: activeLabel == 'Categories',
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HomeScreen(),
+                ),
+              );
+            },
           ),
           _buildNavItem(
             context,
-            icon: Icons.account_balance_wallet,
+            iconPath: 'assets/icons/scheta.png',
             label: 'Счета',
             isActive: false,
             onTap: () {},
           ),
           _buildNavItem(
             context,
-            icon: Icons.insert_chart,
+            iconPath: 'assets/icons/statisctic.png',
             label: 'Статистика',
             isActive: activeLabel == 'Statistics',
             onTap: () {
@@ -49,7 +56,7 @@ class BottomNavigation extends StatelessWidget {
           ),
           _buildNavItem(
             context,
-            icon: Icons.settings,
+            iconPath: 'assets/icons/proper.png',
             label: 'Настройки',
             isActive: activeLabel == 'Settings',
             onTap: () {
@@ -67,12 +74,12 @@ class BottomNavigation extends StatelessWidget {
   }
 
   Widget _buildNavItem(
-    BuildContext context, {
-    required IconData icon,
-    required String label,
-    required bool isActive,
-    required VoidCallback onTap,
-  }) {
+      BuildContext context, {
+        required String iconPath,
+        required String label,
+        required bool isActive,
+        required VoidCallback onTap,
+      }) {
     return GestureDetector(
       onTap: onTap,
       child: Column(
@@ -84,9 +91,10 @@ class BottomNavigation extends StatelessWidget {
               color: isActive ? Colors.yellowAccent : Colors.transparent,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icon,
-              color: isActive ? Colors.black : Colors.white,
+            child: Image.asset(
+              iconPath,
+              width: 60,
+              height: 60,
             ),
           ),
           const SizedBox(height: 4),
@@ -101,4 +109,5 @@ class BottomNavigation extends StatelessWidget {
       ),
     );
   }
+
 }

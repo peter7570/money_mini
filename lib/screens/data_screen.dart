@@ -10,14 +10,39 @@ class DataScreen extends StatefulWidget {
 }
 
 class _DataScreenState extends State<DataScreen> {
-  final Box box = Hive.box('users');
+  Box? box;
+  Map? currentUser;
+
+  @override
+  void initState() {
+    super.initState();
+    openHiveBox();
+  }
+
+  Future<void> openHiveBox() async {
+    box = await Hive.openBox('users');
+    if (box!.containsKey('current_user')) {
+      final email = box!.get('current_user');
+      final user = box!.get(email);
+      if (user is Map) {
+        setState(() {
+          currentUser = user;
+        });
+      }
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Column(
+        child: box == null
+            ? const Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        )
+            : Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 24),
@@ -37,31 +62,27 @@ class _DataScreenState extends State<DataScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            Expanded(
-              child: Padding(
+            if (currentUser != null)
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: ListView(
-                  children: box.keys
-                      .where((key) => key != 'current_user' && key is String)
-                      .map((key) {
-                    final value = box.get(key);
-                    return Card(
-                      color: const Color(0xFF1E1E1E),
-                      child: ListTile(
-                        title: Text(
-                          key,
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        subtitle: Text(
-                          value.toString(),
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                child: Card(
+                  color: Colors.deepPurple,
+                  child: ListTile(
+                    leading: const Icon(Icons.person, color: Colors.white),
+                    title: Text(
+                      currentUser!['name'] ?? 'Поточний профіль',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      currentUser!['email'] ?? '',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  ),
                 ),
               ),
-            ),
+            const SizedBox(height: 8),
           ],
         ),
       ),
