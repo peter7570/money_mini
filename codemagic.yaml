@@ -13,15 +13,29 @@ workflows:
         script: |
           flutter pub get
 
-      - name: Build iOS .app (unsigned)
+      - name: Decode and install signing files
         script: |
-          flutter build ios --release --no-codesign
+          echo $P12_BASE64 | base64 --decode > astinori.p12
+          echo $PROFILE_BASE64 | base64 --decode > astinori.mobileprovision
 
-      - name: Create unsigned .ipa
+          security create-keychain -p "" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "" build.keychain
+          security import certificate.p12 -k build.keychain -P "" -T /usr/bin/codesign
+
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      - name: Build iOS .app (signed)
+        script: |
+          flutter build ios --release
+
+      - name: Create .ipa
         script: |
           mkdir -p Payload
           cp -r build/ios/iphoneos/Runner.app Payload/
           zip -r MoneyNest.ipa Payload
-          rm -rf Payload
+
     artifacts:
       - MoneyNest.ipa
+      - build/ios/iphoneos/Runner.app
