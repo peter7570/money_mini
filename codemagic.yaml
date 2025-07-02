@@ -22,7 +22,6 @@ workflows:
           mkdir -p Payload
           cp -r build/ios/iphoneos/Runner.app Payload/
           zip -r MoneyNest.ipa Payload
+          rm -rf Payload
     artifacts:
       - MoneyNest.ipa
-      - build/ios/iphoneos/Runner.app
-
