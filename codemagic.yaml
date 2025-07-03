@@ -11,12 +11,6 @@ workflows:
         APP_ID: "moneynest"
         TEAM_ID: "7GX9J7V725"
 
-    code_signing:
-      certificates:
-        - ios_distribution
-      provisioning_profiles:
-        - MoneyNest
-
     scripts:
       - name: Install dependencies
         script: |
