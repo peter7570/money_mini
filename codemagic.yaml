@@ -11,23 +11,16 @@ workflows:
         APP_ID: "moneynest"
         TEAM_ID: "7GX9J7V725"
 
+    code_signing:
+      certificates:
+        - ios_distribution
+      provisioning_profiles:
+        - MoneyNest
+
     scripts:
       - name: Install dependencies
         script: |
           flutter pub get
-
-      - name: Decode and install signing files
-        script: |
-          echo $P12_BASE64 | base64 --decode > astinori.p12
-          echo $PROFILE_BASE64 | base64 --decode > astinori.mobileprovision
-
-          security create-keychain -p "" build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p "" build.keychain
-          security import astinori.p12 -k build.keychain -P "" -T /usr/bin/codesign
-
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp astinori.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
 
       - name: Build iOS .app (signed)
         script: |
