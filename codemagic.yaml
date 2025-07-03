@@ -4,7 +4,7 @@ workflows:
     max_build_duration: 30
     environment:
       groups:
-        - ios-signing
+        - ios-signing 
       xcode: latest
       flutter: stable
       vars:
@@ -17,27 +17,28 @@ workflows:
 
       - name: Decode and install signing files
         script: |
-          echo $P12_BASE64 | base64 --decode > astinori.p12
-          echo $PROFILE_BASE64 | base64 --decode > astinori.mobileprovision
+          echo $CERTIFICATE | base64 --decode > certificate.p12
+          echo $PROVISIONING_PROFILE | base64 --decode > profile.mobileprovision
 
           security create-keychain -p "" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "" build.keychain
-          security import astinori.p12 -k build.keychain -P "R2d2c3po2021***" -T /usr/bin/codesign
+          security import certificate.p12 -k build.keychain -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "" build.keychain
 
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp astinori.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/
+          UUID=$(grep -a -E -o "[-A-F0-9]{36}" profile.mobileprovision | head -1)
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
 
       - name: Build iOS .app (signed)
         script: |
-          flutter build ios --release
+          flutter build ios --release --no-codesign
 
       - name: Create .ipa
         script: |
           mkdir -p Payload
           cp -r build/ios/iphoneos/Runner.app Payload/
           zip -r MoneyNest.ipa Payload
-
     artifacts:
       - MoneyNest.ipa
       - build/ios/iphoneos/Runner.app
